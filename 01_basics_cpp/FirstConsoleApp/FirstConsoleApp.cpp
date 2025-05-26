@@ -1,9 +1,11 @@
 #include <iostream>
 
-using namespace std;
+
 
 int main()
 {
+    using namespace std;
+
     const int MIN_AGE = 18;
     int age;
 
