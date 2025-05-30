@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SimpleArray.cpp">
+    <ClCompile Include="AdvancedArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Module.ixx">
+    <ClCompile Include="SimpleArrayModule.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
