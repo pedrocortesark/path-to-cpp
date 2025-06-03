@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SelectPoints", "SelectPoints.vcxproj", "{F56375B5-1C48-4A63-9CA2-651C9FBDFAA8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F56375B5-1C48-4A63-9CA2-651C9FBDFAA8}.Debug|x64.ActiveCfg = Debug|x64
+		{F56375B5-1C48-4A63-9CA2-651C9FBDFAA8}.Debug|x64.Build.0 = Debug|x64
+		{F56375B5-1C48-4A63-9CA2-651C9FBDFAA8}.Release|x64.ActiveCfg = Release|x64
+		{F56375B5-1C48-4A63-9CA2-651C9FBDFAA8}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7A436D20-F73A-4C50-A792-0501335A2593}
+	EndGlobalSection
+EndGlobal
