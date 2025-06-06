@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshSelector", "MeshSelector.vcxproj", "{285FADA0-AC3E-4B6A-888E-E66299E4F528}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{285FADA0-AC3E-4B6A-888E-E66299E4F528}.Debug|x64.ActiveCfg = Debug|x64
+		{285FADA0-AC3E-4B6A-888E-E66299E4F528}.Debug|x64.Build.0 = Debug|x64
+		{285FADA0-AC3E-4B6A-888E-E66299E4F528}.Release|x64.ActiveCfg = Release|x64
+		{285FADA0-AC3E-4B6A-888E-E66299E4F528}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED341C1B-6E6A-4C63-B474-8FF7495046D5}
+	EndGlobalSection
+EndGlobal
