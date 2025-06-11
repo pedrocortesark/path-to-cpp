@@ -14,6 +14,8 @@
     <ClCompile Include="AnomalyFunctions.cpp" />
     <ClCompile Include="cmdANM_ArcCreator.cpp" />
     <ClCompile Include="cmdANM_BrepCreator.cpp" />
+    <ClCompile Include="cmdANM_BrepJoiner.cpp" />
+    <ClCompile Include="cmdANM_BrepsCreator.cpp" />
     <ClCompile Include="cmdANM_CircleCreator.cpp" />
     <ClCompile Include="cmdANM_CreateStartPointOnLine.cpp" />
     <ClCompile Include="cmdANM_CurveCreator.cpp" />

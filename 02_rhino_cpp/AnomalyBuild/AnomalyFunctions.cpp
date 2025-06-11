@@ -92,6 +92,29 @@ void SelectCurves(ON_SimpleArray<ON_Curve*>& curves, CString msg)
 	}
 }
 
+/* This function will prompt the user to select breps and will fill up the simple array */
+void SelectBreps(ON_SimpleArray<ON_Brep*>& breps, CString msg)
+{
+	breps.Destroy();
+
+	CRhinoGetObject go;
+	go.EnablePreSelect(false);
+	go.SetCommandPrompt(msg);
+	go.SetGeometryFilter(CRhinoGetObject::object);
+
+	CRhinoGetObject::result res = go.GetObjects(1, 0);
+	int objectCount = go.ObjectCount();
+
+	if (res == CRhinoGet::object) {
+		for (int i = 0; i < objectCount; i++)
+		{
+			const CRhinoObjRef& obj_ref = go.Object(i);
+			ON_Brep* brep = obj_ref.Brep()->BrepForm();
+			if (brep) breps.Append(brep);
+		}
+	}
+}
+
 
 /* This function will create a nurbs curve through the passed points */
 void CreateCurveFromPoints(ON_3dPointArray& points, int degree, CRhinoDoc* doc)
@@ -167,6 +190,27 @@ ON_Brep* CreateBrepFromPlanarCurves(ON_SimpleArray<ON_Curve*>& curves)
 	return brep;
 }
 
+/* Will create a brep from each planar curves and will return an array of Brep pointers */
+ON_SimpleArray<ON_Brep*> CreateSeveralBrepsFromPlanarCurves(ON_SimpleArray<ON_Curve*>& curves)
+{
+	ON_SimpleArray<const ON_Curve*> inputCurves;
+	for (int i = 0; i < curves.Count(); i++)
+	{
+		const ON_Curve* crv = curves[i];
+		inputCurves.Append(crv);
+	}
+
+	ON_SimpleArray<ON_Brep*> outBreps;
+
+	bool sc = RhinoMakePlanarBreps(inputCurves, outBreps, 0.001);
+	if (!sc)
+	{
+		RhinoApp().Print(L"Planar brep creation failed.\n");
+	}
+	
+	return outBreps;
+}
+
 /* Will create a brep from edge curves and will retirn a Brep pointer */
 ON_Brep* CreateBrepFromEdgeCurves(ON_SimpleArray<ON_Curve*>& curves)
 {
@@ -180,4 +224,24 @@ ON_Brep* CreateBrepFromEdgeCurves(ON_SimpleArray<ON_Curve*>& curves)
 		return nullptr;
 	else 
 		return RhinoCreateEdgeSrf(curvesCount, inputCurves);
+}
+
+/* Will create a brep by joining other input breps and return an array of Brep pointers */
+ON_SimpleArray<ON_Brep*> JoinBreps(CRhinoDoc* doc, ON_SimpleArray<ON_Brep*>& breps, bool deleteOriginal)
+{
+	ON_SimpleArray<ON_Brep*> outBreps;
+	bool sc = RhinoJoinBreps(breps, outBreps, doc->AbsoluteTolerance());
+
+	if(deleteOriginal)
+	{
+		for (int i = 0; i < breps.Count(); i++)
+		{
+			delete breps[i];
+			breps[i] = 0;
+		}
+
+		breps.Destroy();
+	}
+
+	return outBreps;
 }
