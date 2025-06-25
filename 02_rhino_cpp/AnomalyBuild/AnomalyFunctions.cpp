@@ -92,6 +92,23 @@ void SelectCurves(ON_SimpleArray<ON_Curve*>& curves, CString msg)
 	}
 }
 
+/* This function will prompt the user to select just one brep and will fill up the simple array */
+void SelectBrep(ON_Brep* &brep, CString msg)
+{
+	CRhinoGetObject go;
+	go.EnablePreSelect(false);
+	go.SetCommandPrompt(msg);
+	go.SetGeometryFilter(CRhinoGetObject::object);
+
+	CRhinoGetObject::result res = go.GetObjects(1, 1);
+
+	if (res == CRhinoGetObject::object ) {
+		const CRhinoObjRef& obj_ref = go.Object(0);
+		ON_Brep* b = obj_ref.Brep()->BrepForm();
+		if(b) brep = b;
+	}
+}
+
 /* This function will prompt the user to select breps and will fill up the simple array */
 void SelectBreps(ON_SimpleArray<ON_Brep*>& breps, CString msg)
 {
@@ -114,7 +131,6 @@ void SelectBreps(ON_SimpleArray<ON_Brep*>& breps, CString msg)
 		}
 	}
 }
-
 
 /* This function will create a nurbs curve through the passed points */
 void CreateCurveFromPoints(ON_3dPointArray& points, int degree, CRhinoDoc* doc)
