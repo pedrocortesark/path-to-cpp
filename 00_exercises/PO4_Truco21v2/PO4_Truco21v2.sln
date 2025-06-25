@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PO4_Truco21v2", "PO4_Truco21v2.vcxproj", "{71600032-E6E7-488B-9175-CD1D0AB23281}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Debug|x64.ActiveCfg = Debug|x64
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Debug|x64.Build.0 = Debug|x64
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Debug|x86.ActiveCfg = Debug|Win32
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Debug|x86.Build.0 = Debug|Win32
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Release|x64.ActiveCfg = Release|x64
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Release|x64.Build.0 = Release|x64
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Release|x86.ActiveCfg = Release|Win32
+		{71600032-E6E7-488B-9175-CD1D0AB23281}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B96C419F-143F-4413-8560-5062F834DC04}
+	EndGlobalSection
+EndGlobal
