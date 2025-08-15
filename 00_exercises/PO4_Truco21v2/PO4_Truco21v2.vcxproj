@@ -124,6 +124,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="PO4_Truco21v2.cpp" />
+    <ClCompile Include="Truco.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Truco.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

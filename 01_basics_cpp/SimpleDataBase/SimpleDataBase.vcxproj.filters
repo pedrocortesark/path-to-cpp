@@ -15,10 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SimpleArray.cpp">
+    <ClCompile Include="SimpleDataBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModSimpleArray.ixx">
+    <ClCompile Include="ManagePerson.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Persistence.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

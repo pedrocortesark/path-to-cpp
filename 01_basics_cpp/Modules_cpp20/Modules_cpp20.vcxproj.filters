@@ -15,11 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SimpleArray.cpp">
+    <ClCompile Include="Modules_cpp20.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModSimpleArray.ixx">
+    <ClCompile Include="TopIntArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MTopArray.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TopIntArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,10 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SimpleArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModSimpleArray.ixx">
+    <ClCompile Include="PO5_MasterMindv3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

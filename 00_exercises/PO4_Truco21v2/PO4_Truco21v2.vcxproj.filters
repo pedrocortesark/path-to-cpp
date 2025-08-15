@@ -18,5 +18,13 @@
     <ClCompile Include="PO4_Truco21v2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Truco.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Truco.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
