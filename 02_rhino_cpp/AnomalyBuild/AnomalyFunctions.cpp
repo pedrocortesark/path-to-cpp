@@ -44,6 +44,23 @@ bool DivideCurve(ON_3dPointArray& points, ON_Curve* crv, int divNumber)
 	return true;
 }
 
+/* This function will prompt the user to select a single point */
+void SelectPoint(ON_3dPoint& point, CString msg)
+{
+	CRhinoGetObject go;
+	go.EnablePreSelect(false);
+	go.SetCommandPrompt(msg);
+	go.SetGeometryFilter(CRhinoGetObject::point_object);
+
+	CRhinoGetObject::result res = go.GetObjects(1, 1);
+
+	if (res == CRhinoGetObject::object)
+	{
+		const ON_3dPoint dimPt = go.Point();
+		point = ON_3dPoint(dimPt.x, dimPt.y, dimPt.z);
+	}
+}
+
 /* This function will prompt the user to select points and will fill up the 3dPoint array */
 void SelectPoints(ON_3dPointArray& points, CString msg)
 {
@@ -92,6 +109,38 @@ void SelectCurves(ON_SimpleArray<ON_Curve*>& curves, CString msg)
 	}
 }
 
+/* This function will prompt the user to select lines and will fill up the simple array */
+void SelectLines(ON_SimpleArray<ON_Line>& lines, CString msg)
+{
+	lines.Destroy();
+
+	CRhinoGetObject go;
+	go.EnablePreSelect(false);
+	go.SetCommandPrompt(msg);
+	go.SetGeometryFilter(CRhinoGetObject::curve_object);
+
+	CRhinoGetObject::result res = go.GetObjects(1, 0);
+	int objectCount = go.ObjectCount();
+
+	if (res == CRhinoGet::object) {
+		for (int i = 0; i < objectCount; i++)
+		{
+			const CRhinoObjRef& obj_ref = go.Object(i);
+			const CRhinoCurveObject* curve_obj = CRhinoCurveObject::Cast(obj_ref.Object());
+
+			if (curve_obj)
+			{
+				const ON_Curve* crv = curve_obj->Curve();
+				if (crv)
+				{
+					ON_Line line(crv->PointAtStart(), crv->PointAtEnd());
+					lines.Append(line);
+				}
+			}
+		}
+	}
+}
+
 /* This function will prompt the user to select just one brep and will fill up the simple array */
 void SelectBrep(ON_Brep* &brep, CString msg)
 {
@@ -102,7 +151,7 @@ void SelectBrep(ON_Brep* &brep, CString msg)
 
 	CRhinoGetObject::result res = go.GetObjects(1, 1);
 
-	if (res == CRhinoGetObject::object ) {
+	if (res == CRhinoGetObject::object) {
 		const CRhinoObjRef& obj_ref = go.Object(0);
 		ON_Brep* b = obj_ref.Brep()->BrepForm();
 		if(b) brep = b;

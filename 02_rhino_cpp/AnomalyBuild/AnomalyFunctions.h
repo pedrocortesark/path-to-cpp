@@ -6,9 +6,13 @@ ON_3dPoint DrawPoint(ON_Line line, bool start);
 
 bool DivideCurve(ON_3dPointArray& points, ON_Curve* crv, int divNumber);
 
+void SelectPoint(ON_3dPoint& point, CString msg);
+
 void SelectPoints(ON_3dPointArray& points, CString msg);
 
 void SelectCurves(ON_SimpleArray<ON_Curve*>& curves, CString msg);
+
+void SelectLines(ON_SimpleArray<ON_Line>& lines, CString msg);
 
 void SelectBrep(ON_Brep* &brep, CString msg);
 

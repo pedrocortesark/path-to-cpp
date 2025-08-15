@@ -53,14 +53,41 @@ CRhinoCommand::result CCommandANM_MeshBrep::RunCommand(const CRhinoCommandContex
 	ON_SimpleArray<ON_Mesh*> meshes(brep->m_F.Count());
 	int meshCount = brep->CreateMesh(mp, meshes);
 
+	ON_Mesh* joinedMesh = nullptr;
+
 	if(meshCount == brep->m_F.Count())
 	{
-		for (int i = 0; i < meshCount; i++)
-		{
-			context.m_doc.AddMeshObject(*meshes[i]);
-		}
+		joinedMesh = new ON_Mesh(*meshes[0]);
+
+		//for (int i = 0; i < meshCount; i++)
+		//{
+		//	context.m_doc.AddMeshObject(*meshes[i]);
+		//}
+
+		for (int i = 1; i < meshCount; i++)
+			joinedMesh->Append(*meshes[i]);
 	}
 
+	for (int i = 0; i < meshCount; i++)
+	{
+		delete meshes[i];
+		meshes[i] = nullptr;
+	}
+
+	meshes.Destroy();
+
+	ON_Mesh resultMesh = *joinedMesh;
+
+	delete joinedMesh;
+	joinedMesh = nullptr;
+
+
+	for (int i = 0; i < resultMesh.m_V.Count(); i++)
+	{
+		resultMesh.m_V[i].z = 0;
+	}
+
+	context.m_doc.AddMeshObject(resultMesh);
 	context.m_doc.Redraw();
 
 	return CRhinoCommand::success;
