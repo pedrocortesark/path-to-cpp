@@ -60,7 +60,7 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
     // Variables
     // ON_wString layer_name = "Default";
     std::vector<ON_wString> target_layers = { L"Crv_Plantilla_XY", L"Leader", L"Letra_Plantillas" };
-	double move = 10000.0;
+	double move = 3000.0;
 
 	// Start
     CRhinoDoc* doc = ::RhinoApp().ActiveDoc();
