@@ -133,6 +133,44 @@ static int AddBrepBorderCurvesToContourLayer(CRhinoDoc* doc, const ON_Brep* brep
   return added;
 }
 
+// Ensure layer PRE::TXTasCRV exists and return its index
+static int EnsureTxtAsCrvLayer(CRhinoDoc* doc)
+{
+  if (!doc) return -1;
+
+  // Try find by full path name first
+  int full_index = doc->m_layer_table.FindLayerFromName(L"PRE::TXTasCRV", true, true, -1, -1);
+  if (full_index >= 0)
+    return full_index;
+
+  // Ensure parent layer PRE exists
+  int pre_index = doc->m_layer_table.FindLayerFromName(L"PRE", true, false, -1, -1);
+  ON_UUID pre_id = ON_nil_uuid;
+  if (pre_index < 0)
+  {
+    ON_Layer pre_layer;
+    pre_layer.SetName(L"PRE");
+    pre_layer.SetVisible(true);
+    pre_index = doc->m_layer_table.AddLayer(pre_layer);
+    if (pre_index < 0)
+      return -1;
+  }
+  pre_id = doc->m_layer_table[pre_index].Id();
+
+  // Create child TXTasCRV under PRE
+  ON_Layer txt_layer;
+  txt_layer.SetName(L"TXTasCRV");
+  txt_layer.SetParentId(pre_id);
+  txt_layer.SetVisible(true);
+  int txt_layer_index = doc->m_layer_table.AddLayer(txt_layer);
+  if (txt_layer_index < 0)
+  {
+    // As a fallback, try find again by name (full path)
+    txt_layer_index = doc->m_layer_table.FindLayerFromName(L"PRE::TXTasCRV", true, true, -1, -1);
+  }
+  return txt_layer_index;
+}
+
 CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommandContext& context)
 {
     // Variables
@@ -319,37 +357,51 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
                     }
                     else if (const ON_Text* text = ON_Text::Cast(moved_geom.get()))
                     {
-                        // Get the style id from the ON_Text object
-                        ON_UUID style_id = text->DimensionStyleId();
-                        int dimstyle_index = temp_doc->m_dimstyle_table.FindDimStyleFromId(style_id, true, true, -1);
-
-                        if (dimstyle_index >= 0)
+                        // Ensure the dimstyle used by the text exists in the destination doc
                         {
-                            const CRhinoDimStyle& src_dimstyle = temp_doc->m_dimstyle_table[dimstyle_index];
+                          ON_UUID style_id = text->DimensionStyleId();
+                          int src_dimstyle_index = temp_doc->m_dimstyle_table.FindDimStyleFromId(style_id, true, true, -1);
+                          if (src_dimstyle_index >= 0)
+                          {
+                            const CRhinoDimStyle& src_dimstyle = temp_doc->m_dimstyle_table[src_dimstyle_index];
                             ON_wString style_name = src_dimstyle.Name();
-
-                            int style_index = doc->m_dimstyle_table.FindDimStyleFromName(static_cast<const wchar_t*>(style_name), true, -1);
-                            if (style_index < 0)
+                            int dst_style_index = doc->m_dimstyle_table.FindDimStyleFromName(static_cast<const wchar_t*>(style_name), true, -1);
+                            if (dst_style_index < 0)
                             {
-                                // Add the text style if it doesn't exist
-								ON_DimStyle style = temp_doc->m_dimstyle_table[dimstyle_index];
-								doc->m_dimstyle_table.AddDimStyle(style, false);
+                              ON_DimStyle style_copy = temp_doc->m_dimstyle_table[src_dimstyle_index];
+                              doc->m_dimstyle_table.AddDimStyle(style_copy, false);
                             }
+                          }
                         }
 
-                        // Duplicate the ON_Text to avoid modifying the original
-                        ON_Text* newText = new ON_Text(*text);
+                        // 1) Add the text entity on its original destination layer
+                        {
+                          ON_Text* newText = new ON_Text(*text);
+                          CRhinoText* text_obj = new CRhinoText();
+                          text_obj->SetTextObject(newText);
+                          text_obj->ModifyAttributes(attr, true);
+                          doc->AddObject(text_obj);
+                          ++copied_count;
+                        }
 
-                        // Create a CRhinoText and set its geometry
-                        CRhinoText* text_obj = new CRhinoText();
-                        text_obj->SetTextObject(newText);
+                        // 2) Duplicate the text entity onto PRE::TXTasCRV layer
+                        int txt_layer_index = EnsureTxtAsCrvLayer(doc);
+                        if (txt_layer_index < 0)
+                        {
+                          RhinoApp().Print(L"⚠️ Could not ensure PRE::TXTasCRV layer. Skipping text duplication.\n");
+                        }
+                        else
+                        {
+                          CRhinoObjectAttributes dup_attr = attr;
+                          dup_attr.m_layer_index = txt_layer_index;
 
-                        // Set attributes (layer, color, etc.)
-                        text_obj->ModifyAttributes(attr, true);
-
-                        // Add to document
-                        doc->AddObject(text_obj);
-                        ++copied_count;
+                          ON_Text* dupText = new ON_Text(*text);
+                          CRhinoText* dup_text_obj = new CRhinoText();
+                          dup_text_obj->SetTextObject(dupText);
+                          dup_text_obj->ModifyAttributes(dup_attr, true);
+                          doc->AddObject(dup_text_obj);
+                          ++copied_count;
+                        }
                     }
                     else
                     {
