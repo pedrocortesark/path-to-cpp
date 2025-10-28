@@ -8,8 +8,8 @@
 #include <string>
 #include <set>
 
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //
 // BEGIN ANM_AppendGeometry command
 //
@@ -53,6 +53,84 @@ static unsigned int RhOpenHeadlessDocument(const wchar_t* pszPath)
   options.SetFileReadingPlugInId(ON_nil_uuid, 0);
 
   return CRhinoDoc::OpenDocument(pszPath, &options);
+}
+
+// Ensure layer hierarchy PRE::CrvContour exists and return the index of CrvContour
+static int EnsureContourLayer(CRhinoDoc* doc)
+{
+  if (!doc) return -1;
+
+  // Try find by full path name first
+  int full_index = doc->m_layer_table.FindLayerFromName(L"PRE::CrvContour", true, true, -1, -1);
+  if (full_index >= 0)
+    return full_index;
+
+  // Ensure parent layer PRE exists
+  int pre_index = doc->m_layer_table.FindLayerFromName(L"PRE", true, false, -1, -1);
+  ON_UUID pre_id = ON_nil_uuid;
+  if (pre_index < 0)
+  {
+    ON_Layer pre_layer;
+    pre_layer.SetName(L"PRE");
+    pre_layer.SetVisible(true);
+    pre_index = doc->m_layer_table.AddLayer(pre_layer);
+    if (pre_index < 0)
+      return -1;
+  }
+  pre_id = doc->m_layer_table[pre_index].Id();
+
+  // Create child CrvContour under PRE
+  ON_Layer contour_layer;
+  contour_layer.SetName(L"CrvContour");
+  contour_layer.SetParentId(pre_id);
+  contour_layer.SetVisible(true);
+  int contour_index = doc->m_layer_table.AddLayer(contour_layer);
+  if (contour_index < 0)
+  {
+    // As a fallback, try find again by name (full path)
+    contour_index = doc->m_layer_table.FindLayerFromName(L"PRE::CrvContour", true, true, -1, -1);
+  }
+  return contour_index;
+}
+
+// Duplicate naked edge border curves from a brep and add to PRE::CrvContour layer
+static int AddBrepBorderCurvesToContourLayer(CRhinoDoc* doc, const ON_Brep* brep)
+{
+  if (!doc || !brep)
+    return 0;
+
+  int contour_layer_index = EnsureContourLayer(doc);
+  if (contour_layer_index < 0)
+  {
+    RhinoApp().Print(L"⚠️ Could not ensure PRE::CrvContour layer. Skipping border extraction.\n");
+    return 0;
+  }
+
+  CRhinoObjectAttributes attr;
+  attr.m_layer_index = contour_layer_index;
+
+  int added = 0;
+
+  // Collect naked edge curves (edges with only one trim)
+  const int edge_count = brep->m_E.Count();
+  for (int ei = 0; ei < edge_count; ++ei)
+  {
+    const ON_BrepEdge& edge = brep->m_E[ei];
+    // Naked if it has a single trim
+    if (edge.m_ti.Count() == 1)
+    {
+      ON_Curve* edge_curve = edge.DuplicateCurve();
+      if (edge_curve)
+      {
+        // Add as normal curve object on contour layer
+        if (doc->AddCurveObject(*edge_curve, &attr))
+          ++added;
+        delete edge_curve;
+      }
+    }
+  }
+
+  return added;
 }
 
 CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommandContext& context)
@@ -187,8 +265,16 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
                         moved_geom->Transform(move_xform);
                     if (const ON_Brep* brep = ON_Brep::Cast(moved_geom.get())) 
                     {
+                        // Add brep
                         doc->AddBrepObject(*brep, &attr);
                         ++copied_count;
+
+                        // After placing a Brep, extract border (naked edges) to PRE::CrvContour layer
+                        int borders_added = AddBrepBorderCurvesToContourLayer(doc, brep);
+                        if (borders_added > 0)
+                        {
+                          RhinoApp().Print(L" ➕ Added %d border curves to PRE::CrvContour.\n", borders_added);
+                        }
                     } else if (const ON_Curve* curve = ON_Curve::Cast(moved_geom.get())) 
                     {
                         doc->AddCurveObject(*curve, &attr);
@@ -299,5 +385,5 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
 //
 // END ANM_AppendGeometry command
 //
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
