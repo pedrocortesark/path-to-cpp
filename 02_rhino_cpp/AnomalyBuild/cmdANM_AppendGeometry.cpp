@@ -268,11 +268,85 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
             if (idx >= 0)
             {
                 target_layer_indices.insert(idx);
+
+                // Plantillas::Axis can be a parent layer. Include every
+                // descendant layer so geometry stored in nested sublayers is
+                // appended as well.
+                if (lname.CompareOrdinal(L"Plantillas::Axis", false) == 0)
+                {
+                    const ON_UUID root_layer_id = temp_doc->m_layer_table[idx].Id();
+                    for (int child_idx = 0; child_idx < temp_doc->m_layer_table.LayerCount(); ++child_idx)
+                    {
+                        ON_UUID parent_id = temp_doc->m_layer_table[child_idx].ParentLayerId();
+                        while (!ON_UuidIsNil(parent_id))
+                        {
+                            if (parent_id == root_layer_id)
+                            {
+                                target_layer_indices.insert(child_idx);
+                                break;
+                            }
+
+                            int parent_idx = -1;
+                            for (int candidate_idx = 0; candidate_idx < temp_doc->m_layer_table.LayerCount(); ++candidate_idx)
+                            {
+                                if (temp_doc->m_layer_table[candidate_idx].Id() == parent_id)
+                                {
+                                    parent_idx = candidate_idx;
+                                    break;
+                                }
+                            }
+
+                            if (parent_idx < 0)
+                                break;
+                            parent_id = temp_doc->m_layer_table[parent_idx].ParentLayerId();
+                        }
+                    }
+                }
+
                 RhinoApp().Print(L"   🔍 Found layer '%s' at index %d\n", static_cast<const wchar_t*>(lname), idx);
             }
             else
             {
                 RhinoApp().Print(L"   ⚠️ Layer '%s' not found in file\n", static_cast<const wchar_t*>(lname));
+            }
+        }
+
+        // Rhino's layer-name lookup can miss a nested layer in some files.
+        // Resolve the complete path ourselves as a fallback, so curves and
+        // other geometry on Plantillas::Axis are selected by layer index.
+        for (int layer_idx = 0; layer_idx < temp_doc->m_layer_table.LayerCount(); ++layer_idx)
+        {
+            const CRhinoLayer& layer = temp_doc->m_layer_table[layer_idx];
+            ON_wString full_path = layer.Name();
+            ON_UUID parent_id = layer.ParentLayerId();
+            while (!ON_UuidIsNil(parent_id))
+            {
+                int parent_idx = -1;
+                for (int candidate_idx = 0; candidate_idx < temp_doc->m_layer_table.LayerCount(); ++candidate_idx)
+                {
+                    if (temp_doc->m_layer_table[candidate_idx].Id() == parent_id)
+                    {
+                        parent_idx = candidate_idx;
+                        break;
+                    }
+                }
+                if (parent_idx < 0)
+                    break;
+
+                full_path = temp_doc->m_layer_table[parent_idx].Name() + L"::" + full_path;
+                parent_id = temp_doc->m_layer_table[parent_idx].ParentLayerId();
+            }
+
+            for (const ON_wString lname : target_layers)
+            {
+                const bool matches_full_path = lname.Find(L"::") >= 0 &&
+                    full_path.CompareOrdinal(static_cast<const wchar_t*>(lname), true) == 0;
+                if (matches_full_path)
+                {
+                    target_layer_indices.insert(layer_idx);
+                    RhinoApp().Print(L"   🔍 Found layer by constructed path '%s' at index %d\n",
+                        static_cast<const wchar_t*>(full_path), layer_idx);
+                }
             }
         }
 
