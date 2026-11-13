@@ -179,7 +179,9 @@ CRhinoCommand::result CCommandANM_AppendGeometry::RunCommand(const CRhinoCommand
         L"Crv_Plantilla_XY", 
         L"Leader", 
         L"Letra_Plantillas", 
-        L"Axis"  // buscar por path completo
+        L"Axis",
+        L"Plantillas::Axis",
+        L"Marcas_Plantillas"
     };
 	double move = 3000.0;
 
